@@ -48,7 +48,7 @@ const AppWithoutAuth = () => (
                 <strong>Dev Environment Setup:</strong> Add <code className="bg-muted px-1 py-0.5 rounded">.env.local</code> file to your project root with:
               </p>
               <pre className="mt-2 p-2 bg-muted rounded text-xs overflow-x-auto">
-                VITE_CLERK_PUBLISHABLE_KEY=pk_test_••••••••••••••••••••••••••••••••••
+                VITE_CLERK_PUBLISHABLE_KEY=pk_test_dmFsdWVkLWJveGVyLTIyLmNsZXJrLmFjY291bnRzLmRldiQ
               </pre>
             </div>
           </div>

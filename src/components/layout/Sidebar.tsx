@@ -11,7 +11,8 @@ import {
   Map, 
   Settings, 
   ChevronLeft, 
-  ChevronRight
+  ChevronRight,
+  User
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
@@ -25,7 +26,7 @@ type SidebarItem = {
 };
 
 const mainItems: SidebarItem[] = [
-  { icon: Home, label: 'Dashboard', href: '/' },
+  { icon: Home, label: 'Dashboard', href: '/dashboard' },
   { icon: Package, label: 'Resources', href: '/resources' },
   { icon: Bell, label: 'Alerts', href: '/alerts' },
   { icon: ActivitySquare, label: 'Response', href: '/response' },
@@ -35,6 +36,7 @@ const mainItems: SidebarItem[] = [
 const secondaryItems: SidebarItem[] = [
   { icon: Users, label: 'Team', href: '/team' },
   { icon: Map, label: 'Maps', href: '/maps' },
+  { icon: User, label: 'Profile', href: '/profile' },
   { icon: Settings, label: 'Settings', href: '/settings' },
 ];
 

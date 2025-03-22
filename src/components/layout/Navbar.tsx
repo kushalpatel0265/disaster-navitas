@@ -1,7 +1,18 @@
 
 import { useState, useEffect } from 'react';
-import { Link, useLocation } from 'react-router-dom';
-import { Menu, X, Bell, UserCircle, ChevronDown } from 'lucide-react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { useUser, useClerk } from '@clerk/clerk-react';
+import { 
+  Menu, 
+  X, 
+  Bell, 
+  UserCircle, 
+  ChevronDown,
+  LogOut,
+  User,
+  Settings,
+  HelpCircle
+} from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -12,6 +23,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { cn } from '@/lib/utils';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
 const NavItem = ({ href, text, active }: { href: string; text: string; active: boolean }) => (
   <Link
@@ -31,6 +43,9 @@ const NavItem = ({ href, text, active }: { href: string; text: string; active: b
 );
 
 export function Navbar() {
+  const { user } = useUser();
+  const { signOut } = useClerk();
+  const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const location = useLocation();
@@ -44,12 +59,19 @@ export function Navbar() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  const handleSignOut = async () => {
+    await signOut();
+    navigate('/sign-in');
+  };
+
   const navigationItems = [
-    { href: '/', text: 'Dashboard' },
+    { href: '/dashboard', text: 'Dashboard' },
     { href: '/resources', text: 'Resources' },
     { href: '/alerts', text: 'Alerts' },
     { href: '/response', text: 'Response' },
     { href: '/analytics', text: 'Analytics' },
+    { href: '/team', text: 'Team' },
+    { href: '/maps', text: 'Maps' },
   ];
 
   return (
@@ -91,21 +113,63 @@ export function Navbar() {
             </Badge>
           </Button>
           
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="flex items-center space-x-2">
-                <UserCircle size={20} />
-                <span className="text-sm font-medium">Admin</span>
-                <ChevronDown size={16} />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-56 animate-scale-in">
-              <DropdownMenuItem className="cursor-pointer">Profile</DropdownMenuItem>
-              <DropdownMenuItem className="cursor-pointer">Settings</DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem className="cursor-pointer text-destructive">Logout</DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+          {user ? (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" className="flex items-center space-x-2">
+                  <Avatar className="h-8 w-8">
+                    <AvatarImage src={user.imageUrl} alt={user.fullName || ''} />
+                    <AvatarFallback>
+                      {user.firstName?.[0]}{user.lastName?.[0]}
+                    </AvatarFallback>
+                  </Avatar>
+                  <span className="text-sm font-medium hidden lg:inline-block">
+                    {user.firstName}
+                  </span>
+                  <ChevronDown size={16} />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-56 animate-scale-in">
+                <div className="flex items-center justify-start p-2">
+                  <div className="flex flex-col space-y-1 leading-none">
+                    {user.fullName && (
+                      <p className="font-medium">{user.fullName}</p>
+                    )}
+                    {user.primaryEmailAddress && (
+                      <p className="w-[200px] truncate text-sm text-muted-foreground">
+                        {user.primaryEmailAddress.emailAddress}
+                      </p>
+                    )}
+                  </div>
+                </div>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={() => navigate('/profile')} className="cursor-pointer">
+                  <User className="mr-2 h-4 w-4" />
+                  <span>Profile</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => navigate('/settings')} className="cursor-pointer">
+                  <Settings className="mr-2 h-4 w-4" />
+                  <span>Settings</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem className="cursor-pointer">
+                  <HelpCircle className="mr-2 h-4 w-4" />
+                  <span>Help</span>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem 
+                  onClick={handleSignOut}
+                  className="cursor-pointer text-destructive focus:text-destructive"
+                >
+                  <LogOut className="mr-2 h-4 w-4" />
+                  <span>Log out</span>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          ) : (
+            <Button onClick={() => navigate('/sign-in')}>
+              Sign In
+            </Button>
+          )}
         </div>
         
         <Button 
@@ -137,17 +201,51 @@ export function Navbar() {
                 {item.text}
               </Link>
             ))}
-            <div className="border-t border-border pt-3 mt-3 flex items-center justify-between">
-              <Button variant="ghost" size="sm" className="relative">
-                <Bell size={18} />
-                <Badge className="absolute -top-1 -right-1 px-1.5 min-w-[18px] h-[18px] text-xs bg-primary">
-                  3
-                </Badge>
+            <div className="border-t border-border pt-3 mt-3 flex flex-col space-y-3">
+              <Button 
+                variant="ghost" 
+                className="justify-start"
+                onClick={() => {
+                  setIsOpen(false);
+                  navigate('/profile');
+                }}
+              >
+                <User size={18} className="mr-2" />
+                <span>Profile</span>
               </Button>
-              <Button variant="ghost" size="sm">
-                <UserCircle size={18} className="mr-2" />
-                <span className="text-sm">Admin</span>
+              <Button 
+                variant="ghost" 
+                className="justify-start"
+                onClick={() => {
+                  setIsOpen(false);
+                  navigate('/settings');
+                }}
+              >
+                <Settings size={18} className="mr-2" />
+                <span>Settings</span>
               </Button>
+              {user ? (
+                <Button 
+                  variant="ghost" 
+                  className="justify-start text-destructive hover:text-destructive"
+                  onClick={() => {
+                    setIsOpen(false);
+                    handleSignOut();
+                  }}
+                >
+                  <LogOut size={18} className="mr-2" />
+                  <span>Log out</span>
+                </Button>
+              ) : (
+                <Button 
+                  onClick={() => {
+                    setIsOpen(false);
+                    navigate('/sign-in');
+                  }}
+                >
+                  Sign In
+                </Button>
+              )}
             </div>
           </div>
         </div>

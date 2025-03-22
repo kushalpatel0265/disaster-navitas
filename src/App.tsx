@@ -19,10 +19,10 @@ import SignIn from "./pages/auth/SignIn";
 import SignUp from "./pages/auth/SignUp";
 
 // Your Clerk publishable key
-const PUBLISHABLE_KEY = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY || "temp_key_for_development";
+const PUBLISHABLE_KEY = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
 
 // Create a fallback behavior when Clerk key is missing
-const isClerkConfigured = !!import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
+const isClerkConfigured = !!PUBLISHABLE_KEY;
 
 const queryClient = new QueryClient();
 
@@ -40,9 +40,17 @@ const AppWithoutAuth = () => (
               Please set the <code className="bg-muted px-1 py-0.5 rounded">VITE_CLERK_PUBLISHABLE_KEY</code> environment 
               variable to enable authentication features.
             </p>
-            <p className="text-sm text-muted-foreground">
-              You can get your key from the Clerk dashboard.
+            <p className="text-sm text-muted-foreground mb-4">
+              You can get your key from the <a href="https://dashboard.clerk.com/last-active?path=api-keys" className="text-primary underline" target="_blank" rel="noopener noreferrer">Clerk dashboard</a>.
             </p>
+            <div className="p-4 bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800 rounded-md text-amber-800 dark:text-amber-300">
+              <p className="text-sm">
+                <strong>Dev Environment Setup:</strong> Add <code className="bg-muted px-1 py-0.5 rounded">.env.local</code> file to your project root with:
+              </p>
+              <pre className="mt-2 p-2 bg-muted rounded text-xs overflow-x-auto">
+                VITE_CLERK_PUBLISHABLE_KEY=pk_test_••••••••••••••••••••••••••••••••••
+              </pre>
+            </div>
           </div>
         </div>
       </BrowserRouter>
@@ -59,7 +67,7 @@ const App = () => {
   // Normal app with authentication when configured properly
   return (
     <ClerkProvider
-      publishableKey={PUBLISHABLE_KEY}
+      publishableKey={PUBLISHABLE_KEY || ""}
       clerkJSVersion="5.56.0-snapshot.v20250312225817"
       signInUrl="/sign-in"
       signUpUrl="/sign-up"

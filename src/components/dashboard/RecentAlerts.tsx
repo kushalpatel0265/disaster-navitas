@@ -180,7 +180,7 @@ export function RecentAlerts() {
                   <div className="p-3 bg-muted rounded-lg text-sm">
                     <div className="flex items-center justify-between mb-2">
                       <h5 className="font-medium">Alert Details</h5>
-                      <Badge variant="outline" className="text-xs" size="sm">
+                      <Badge variant="outline" className="text-xs">
                         ID: {alert.id}
                       </Badge>
                     </div>

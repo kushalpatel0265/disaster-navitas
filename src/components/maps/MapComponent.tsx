@@ -1,7 +1,8 @@
 
 import { useEffect, useRef, useState } from 'react';
-import mapboxgl from 'mapbox-gl';
-import 'mapbox-gl/dist/mapbox-gl.css';
+import * as radar from 'radar-sdk-js';
+import { Map, Marker, NavigationControl } from 'maplibre-gl';
+import 'maplibre-gl/dist/maplibre-gl.css';
 
 interface Location {
   id: string;
@@ -13,7 +14,7 @@ interface Location {
 }
 
 interface MapComponentProps {
-  mapboxToken: string;
+  radarPublishableKey: string;
   locations: Location[];
   selectedLocation: Location | null;
   onLocationSelect: (location: Location) => void;
@@ -21,28 +22,46 @@ interface MapComponentProps {
 }
 
 const MapComponent = ({ 
-  mapboxToken, 
+  radarPublishableKey, 
   locations, 
   selectedLocation, 
   onLocationSelect,
   onMapLoaded 
 }: MapComponentProps) => {
   const mapContainer = useRef<HTMLDivElement>(null);
-  const map = useRef<mapboxgl.Map | null>(null);
-  const markersRef = useRef<{ [key: string]: mapboxgl.Marker }>({});
+  const map = useRef<Map | null>(null);
+  const markersRef = useRef<{ [key: string]: Marker }>({});
   const [loaded, setLoaded] = useState(false);
 
-  // Initialize map
+  // Initialize map with Radar
   useEffect(() => {
-    if (!mapboxToken || !mapContainer.current || map.current) return;
+    if (!radarPublishableKey || !mapContainer.current || map.current) return;
 
-    mapboxgl.accessToken = mapboxToken;
+    // Initialize Radar SDK
+    radar.initialize(radarPublishableKey);
     
-    map.current = new mapboxgl.Map({
+    // Initialize MapLibre map (Radar uses MapLibre under the hood)
+    map.current = new Map({
       container: mapContainer.current,
-      style: 'mapbox://styles/mapbox/streets-v11',
+      style: 'https://api.maptiler.com/maps/streets/style.json?key=get_your_own_key', // Fallback style
       center: [-118.243683, 34.052235], // Default to LA
       zoom: 11
+    });
+
+    // Get map style from Radar
+    radar.getContext({
+      layers: ['map'],
+      callback: function(err, result) {
+        if (err) {
+          console.error('Error getting Radar map style:', err);
+          return;
+        }
+
+        if (result && result.map && result.map.style && map.current) {
+          // Replace with Radar map style if available
+          map.current.setStyle(result.map.style);
+        }
+      }
     });
 
     map.current.on('load', () => {
@@ -52,7 +71,7 @@ const MapComponent = ({
 
     // Add navigation controls
     map.current.addControl(
-      new mapboxgl.NavigationControl(),
+      new NavigationControl(),
       'top-right'
     );
 
@@ -62,7 +81,7 @@ const MapComponent = ({
         map.current = null;
       }
     };
-  }, [mapboxToken, onMapLoaded]);
+  }, [radarPublishableKey, onMapLoaded]);
 
   // Handle locations and markers
   useEffect(() => {
@@ -122,7 +141,7 @@ const MapComponent = ({
       }
       
       // Create and add the marker
-      const marker = new mapboxgl.Marker(markerEl)
+      const marker = new Marker(markerEl)
         .setLngLat(location.coordinates)
         .addTo(map.current!);
         

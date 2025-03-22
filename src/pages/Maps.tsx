@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useRef } from 'react';
 import { Search, Layers, MapPin, AlertTriangle } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -61,9 +60,9 @@ const predefinedLocations: Location[] = [
   }
 ];
 
+const RADAR_PUBLISHABLE_KEY = "prj_test_pk_8df728385a37cc76fcf0f1ed2cae13e7fddcf086";
+
 function MapsPage() {
-  const [mapboxToken, setMapboxToken] = useState<string | null>(localStorage.getItem('mapbox_token'));
-  const [showTokenInput, setShowTokenInput] = useState(!mapboxToken);
   const [locations, setLocations] = useState<Location[]>(predefinedLocations);
   const [selectedLocation, setSelectedLocation] = useState<Location | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
@@ -82,12 +81,6 @@ function MapsPage() {
     
     return matchesSearch && matchesType;
   });
-  
-  const handleSaveToken = (token: string) => {
-    localStorage.setItem('mapbox_token', token);
-    setMapboxToken(token);
-    setShowTokenInput(false);
-  };
   
   const getLocationBadge = (locationType: Location['type']) => {
     switch (locationType) {
@@ -177,48 +170,13 @@ function MapsPage() {
         </div>
         
         <div className="hidden md:block flex-1 relative">
-          {showTokenInput ? (
-            <div className="absolute inset-0 flex items-center justify-center bg-background/80">
-              <Card className="w-96">
-                <CardHeader>
-                  <CardTitle>Mapbox API Token Required</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    <p className="text-sm text-muted-foreground">
-                      To display the map, please enter your Mapbox API token.
-                    </p>
-                    <div className="space-y-2">
-                      <Label htmlFor="token">Mapbox Token</Label>
-                      <Input id="token" placeholder="Enter your Mapbox token" />
-                    </div>
-                    <div className="text-xs text-muted-foreground">
-                      You can get a token from <a href="https://mapbox.com" target="_blank" rel="noreferrer" className="text-primary hover:underline">mapbox.com</a>
-                    </div>
-                    <Button 
-                      className="w-full" 
-                      onClick={() => {
-                        const tokenInput = document.getElementById('token') as HTMLInputElement;
-                        if (tokenInput.value) {
-                          handleSaveToken(tokenInput.value);
-                        }
-                      }}
-                    >
-                      Save Token
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-          ) : (
-            <MapComponent 
-              mapboxToken={mapboxToken || ''}
-              locations={locations}
-              selectedLocation={selectedLocation}
-              onLocationSelect={setSelectedLocation}
-              onMapLoaded={() => setMapLoaded(true)}
-            />
-          )}
+          <MapComponent 
+            radarPublishableKey={RADAR_PUBLISHABLE_KEY}
+            locations={locations}
+            selectedLocation={selectedLocation}
+            onLocationSelect={setSelectedLocation}
+            onMapLoaded={() => setMapLoaded(true)}
+          />
           
           {selectedLocation && (
             <div className="absolute bottom-5 left-5 w-80 bg-background/90 backdrop-blur-sm rounded-lg border border-border shadow-md">

@@ -1,5 +1,6 @@
 
 import { useEffect, useRef, useState } from 'react';
+import * as radar from 'radar-sdk-js';
 import { 
   Card, 
   CardContent, 
@@ -9,6 +10,9 @@ import {
 } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
+
+// Radar publishable key
+const RADAR_PUBLISHABLE_KEY = "prj_test_pk_8df728385a37cc76fcf0f1ed2cae13e7fddcf086";
 
 interface MapPoint {
   lat: number;
@@ -57,14 +61,45 @@ export function IncidentMap() {
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const [loading, setLoading] = useState(true);
   const [mapView, setMapView] = useState<'satellite' | 'street'>('street');
+  const mapRef = useRef<any>(null);
   
-  // This is for visual purposes only - in a real app, you'd integrate with a real map API
+  // Initialize Radar map
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setLoading(false);
-    }, 1000);
+    if (!mapContainerRef.current) return;
     
-    return () => clearTimeout(timer);
+    // Initialize Radar SDK
+    radar.initialize(RADAR_PUBLISHABLE_KEY);
+    
+    const loadMap = async () => {
+      try {
+        // Get map context from Radar
+        await new Promise<void>((resolve, reject) => {
+          radar.getContext({
+            layers: ['map'],
+            callback: function(err, result) {
+              if (err) {
+                reject(err);
+                return;
+              }
+              
+              // If we got map data, we can consider it loaded
+              resolve();
+              setLoading(false);
+            }
+          });
+        });
+      } catch (error) {
+        console.error('Error loading Radar map:', error);
+        // Still mark as loaded even if there's an error
+        setLoading(false);
+      }
+    };
+    
+    loadMap();
+    
+    return () => {
+      // Cleanup if needed
+    };
   }, []);
 
   return (
@@ -108,13 +143,16 @@ export function IncidentMap() {
             <>
               <div 
                 ref={mapContainerRef} 
-                className={cn(
-                  "w-full h-full bg-center bg-cover transition-opacity duration-500",
-                  mapView === 'street' 
-                    ? "bg-[url('https://api.mapbox.com/styles/v1/mapbox/streets-v11/static/-118.2437,34.0522,12,0/600x400?access_token=example')] opacity-100" 
-                    : "bg-[url('https://api.mapbox.com/styles/v1/mapbox/satellite-streets-v11/static/-118.2437,34.0522,12,0/600x400?access_token=example')] opacity-100"
-                )}
+                className="w-full h-full relative"
               >
+                {/* Static map background as fallback */}
+                <div className={cn(
+                  "absolute inset-0 bg-center bg-cover transition-opacity duration-500",
+                  mapView === 'street' 
+                    ? "bg-[url('https://assets.radar.com/images/maps-preview.png')] opacity-100" 
+                    : "bg-[url('https://assets.radar.com/images/maps-satellite-preview.png')] opacity-100"
+                )} />
+                
                 {/* Dots on the map - in a real implementation this would be handled by the map API */}
                 <div className="relative h-full w-full">
                   {dummyMapPoints.map((point, idx) => {
@@ -125,7 +163,7 @@ export function IncidentMap() {
                     return (
                       <div 
                         key={idx}
-                        className="absolute transform -translate-x-1/2 -translate-y-1/2 z-10"
+                        className="absolute transform -translate-x-1/2 -translate-y-1/2 z-10 group"
                         style={{ left: `${left}%`, top: `${top}%` }}
                       >
                         <div 

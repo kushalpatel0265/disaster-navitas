@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { useUser } from '@clerk/clerk-react';
 import { Edit, Check, Mail, Phone, MapPin, Shield, BadgePlus } from 'lucide-react';

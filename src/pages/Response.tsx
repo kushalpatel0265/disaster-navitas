@@ -128,8 +128,8 @@ const incidents: Incident[] = [
   {
     id: 'INC-005',
     title: 'Small Fire at Restaurant',
-    description: 'Kitchen fire at Bella's Restaurant. Kitchen staff evacuated. No injuries reported.',
-    location: 'Bella's Restaurant, 456 Oak St',
+    description: 'Kitchen fire at Bella\'s Restaurant. Kitchen staff evacuated. No injuries reported.',
+    location: 'Bella\'s Restaurant, 456 Oak St',
     coordinates: { lat: 34.041789, lng: -118.299564 },
     severity: 'minor',
     status: 'resolved',

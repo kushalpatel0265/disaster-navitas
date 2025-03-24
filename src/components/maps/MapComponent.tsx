@@ -1,6 +1,5 @@
-
 import { useEffect, useRef, useState } from 'react';
-import * as radar from 'radar-sdk-js';
+import radar from 'radar-sdk-js';
 import { Map, Marker, NavigationControl } from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
 
@@ -37,8 +36,10 @@ const MapComponent = ({
   useEffect(() => {
     if (!radarPublishableKey || !mapContainer.current || map.current) return;
 
-    // Initialize Radar SDK
-    radar.initialize(radarPublishableKey);
+    // Initialize Radar SDK with the correct method
+    radar.initialize({
+      publishableKey: radarPublishableKey
+    });
     
     // Initialize MapLibre map (Radar uses MapLibre under the hood)
     map.current = new Map({
@@ -48,10 +49,10 @@ const MapComponent = ({
       zoom: 11
     });
 
-    // Get map style from Radar
+    // Get map style from Radar with the correct method
     radar.getContext({
-      layers: ['map'],
-      callback: function(err, result) {
+      includeLabels: true,
+      callback: function(err: any, result: any) {
         if (err) {
           console.error('Error getting Radar map style:', err);
           return;

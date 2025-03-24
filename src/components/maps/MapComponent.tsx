@@ -36,10 +36,8 @@ const MapComponent = ({
   useEffect(() => {
     if (!radarPublishableKey || !mapContainer.current || map.current) return;
 
-    // Initialize Radar SDK with the correct method
-    radar.initialize({
-      publishableKey: radarPublishableKey
-    });
+    // Initialize Radar SDK with string parameter
+    radar.initialize(radarPublishableKey);
     
     // Initialize MapLibre map (Radar uses MapLibre under the hood)
     map.current = new Map({
@@ -49,9 +47,8 @@ const MapComponent = ({
       zoom: 11
     });
 
-    // Get map style from Radar with the correct method
+    // Get map style from Radar with the correct parameters
     radar.getContext({
-      includeLabels: true,
       callback: function(err: any, result: any) {
         if (err) {
           console.error('Error getting Radar map style:', err);

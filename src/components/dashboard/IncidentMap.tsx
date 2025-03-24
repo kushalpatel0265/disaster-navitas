@@ -66,17 +66,14 @@ export function IncidentMap() {
   useEffect(() => {
     if (!mapContainerRef.current) return;
     
-    // Initialize Radar SDK with the correct method
-    radar.initialize({
-      publishableKey: RADAR_PUBLISHABLE_KEY
-    });
+    // Initialize Radar SDK with string parameter
+    radar.initialize(RADAR_PUBLISHABLE_KEY);
     
     const loadMap = async () => {
       try {
-        // Get map context from Radar with the correct method
+        // Get map context from Radar with the correct parameters
         await new Promise<void>((resolve, reject) => {
           radar.getContext({
-            includeLabels: true,
             callback: function(err: any, result: any) {
               if (err) {
                 reject(err);

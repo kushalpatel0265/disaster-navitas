@@ -49,10 +49,7 @@
     "input-otp": "^1.2.4",
     "lucide-react": "^0.462.0",
     "mapbox-gl": "^3.10.0",
-
-    // Changed from ^5.2.0 to ^4.7.1 to match Radar's peer dependency
-    "maplibre-gl": "^4.7.1",
-
+    "maplibre-gl": "^5.2.0",
     "next-themes": "^0.3.0",
     "radar-sdk-js": "^4.4.10",
     "react": "^18.3.1",
